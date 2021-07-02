@@ -12,6 +12,8 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text BestScoreText;
+    public string PlayerName;
     
     private bool m_Started = false;
     private int m_Points;
@@ -36,6 +38,10 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        PlayerName = PersistentData.Instance.PlayerName;
+        ScoreText.text = $"{PlayerName} Score : {m_Points}";
+        BestScoreText.text = $"Best Score : {PersistentData.Instance.BestName} : {PersistentData.Instance.BestScore}";
     }
 
     private void Update()
@@ -57,7 +63,7 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);             
             }
         }
     }
@@ -65,12 +71,25 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $"{PlayerName} Score : {m_Points}";
+        UpdateBestScore();
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        UpdateBestScore();
+        PersistentData.Instance.SaveName();
+    }
+
+    void UpdateBestScore()
+    {
+        if (m_Points > PersistentData.Instance.BestScore)
+        {
+            PersistentData.Instance.BestScore = m_Points;
+            PersistentData.Instance.BestName = PersistentData.Instance.PlayerName;
+        }
+        BestScoreText.text = $"Best Score : {PersistentData.Instance.BestName} : {PersistentData.Instance.BestScore}";
     }
 }
